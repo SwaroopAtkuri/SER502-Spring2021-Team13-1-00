@@ -1,0 +1,30 @@
+package compiler;
+
+public class IJARPLSymbol {
+    public static final String PROGRAM = "PROGRAM ";
+    public static final String END_PROGRAM = "END PROGRAM ";
+    public static final String BLOCK = "BLOCK ";
+    public static final String END_BLOCK = "END BLOCK ";
+    public static final String STATEMENT = "STATEMENT ";
+    public static final String EXPR = "EXPR ";
+    public static final String DECLARATION = "DECLARATION ";
+    public static final String IF_COND = "IF COND";
+    public static final String END_IF_COND = "END IF COND";
+    public static final String ELSE = "ELSE";
+    public static final String END_ELSE = "END ELSE";
+    public static final String FOR_LOOP = "FOR LOOP ";
+    public static final String END_FOR_LOOP = "END FOR LOOP ";
+    public static final String PRINT = "PRINT ";
+    public static final String ASSIGN = "ASSIGN ";
+    public static final String ADD = "ADD ";
+    public static final String SUB = "SUB ";
+    public static final String MUL = "MUL ";
+    public static final String DIV = "DIV ";
+    public static final String MOD = "MOD ";
+    public static final String BOOL = "BOOL ";
+    public static final String EQUAL = "EQUAL";
+    public static final String NOT_EQUAL = "NOT_EQUAL";
+    public static final String LESS_THAN = "LESSTHAN_EQUAL";
+    public static final String GREATER_THAN = "GREATERTHAN_EQUAL";
+    public static final String SPACE = " ";
+}

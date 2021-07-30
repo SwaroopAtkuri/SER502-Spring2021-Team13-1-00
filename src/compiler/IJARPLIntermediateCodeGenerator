@@ -1,0 +1,71 @@
+import java.util.*;
+
+
+public class IJARPLIntermediateCodeGenerator extends IJARPLBaseListener {
+	private static IJARPLIntermediateCodeGenerator instanceOfIJARPL = null;
+	private static ArrayList<String> codeGen;
+	
+	private static Stack<Integer> stack = new Stack<Integer>();
+	private static Stack<String> method = new Stack<String>();
+	
+	@Override public void enterProgram(IJARPLParser.ProgramContext ctx) { 
+		codeGen.add(IJARPLSymbol.add.PROGRAM);
+	}
+	
+	@Override public void exitProgram(IJARPLParser.ProgramContext ctx) { 
+		codeGen.add(IJARPLSymbol.add.END_PROGRAM);
+	}
+	
+	
+	@Override public void exitExpr(IJARPLParser.ExprContext ctx) { 
+		if (ctx.getText().contains("==")) {
+			   codeGen.add(IJARPLSymbol.EQUAL);
+			} else if (ctx.getText().contains("<=")) {
+			   codeGen.add(IJARPLSymbol.LESS_EQUAL);
+			} else if (ctx.getText().contains(">=")) {
+			   codeGen.add(IJARPLSymbol.GREATER_EQUAL);
+			} else if (ctx.getText().contains("!=")) {
+			   codeGen.add(IJARPLSymbol.NOT_EQUAL);
+			} else if (ctx.getText().contains("<")) {
+			   codeGen.add(IJARPLSymbol.LESS_THAN);
+			} else if (ctx.getText().contains(">")) {
+			   codeGen.add(IJARPLSymbol.GREATER_THAN);
+			}
+			codeGen.add(IJARPLSymbol.COND_END);
+
+		
+	}
+	
+	@Override public void enterDeclaration(IJARPLParser.DeclarationContext ctx) { 
+		if (method.isEmpty()) {
+			codeGen.add(IJARPLSymbol.add.LOAD + ctx.identifier().getText());
+		} else {
+			
+			codeGen.add(IJARPLSymbol.add.LOAD  + ctx.identifier().getText());
+		}
+	}
+	
+	
+	@Override public void enterIf_cond(IJARPLParser.If_condContext ctx) { 
+		codeGen.add(IJARPLSymbol.add.IF);
+		
+	}
+	
+	@Override public void exitIf_cond(IJARPLParser.If_condContext ctx) { 
+		
+		codeGen.add(IJARPLSymbol.add.END_IF);
+	}
+	s
+	public IJARPLIntermediateCodeGenerator getInstance() {
+		return instanceOfIJARPL;
+		
+	}
+	
+	public ArrayList<String> getIntermediateCode() {
+		return codeGen;
+	}
+	
+	
+	
+	
+}

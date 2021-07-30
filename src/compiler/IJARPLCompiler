@@ -1,0 +1,62 @@
+package compiler;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+public class IJARPLCompiler {
+
+    static IJARPLParser parser = null;
+
+    public IJARPLParser getParser() {
+        return parser;
+    }
+
+    public static void writeIntermediateFile(String fileName, ArrayList<String> intermediateCode) {
+        try {
+            PrintWriter writer = new PrintWriter(fileName + "i", "UTF-8");
+            for (String i:intermediateCode){
+                writer.println(i);
+            }
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args){
+        String fileName = "";
+        if(args.length > 0)
+            fileName = args[0];
+        else {
+            System.err.println("File Name cannot be empty");
+            return;
+        }
+        if(!fileName.contains(".ijarpl")) {
+            System.err.println("Enter a valid .ijarpl file");
+            return;
+        }
+
+        CharStream charStream = null;
+        try {
+            charStream = CharStreams.fromFileName(fileName);
+        }
+        catch(Exception e){
+            System.err.println(e);
+            e.printStackTrace();
+        }
+
+        IJARPLLexer lexer = new IJARPLLexer(charStream);
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);
+        parser = new IJARPLParser(tokenStream);
+        ParseTreeWalker.DEFAULT.walk(IJARPLIntermediateCodeGenerator.getInstance(), parser.program());
+        ArrayList<String> intermediateCode =  IJARPLIntermediateCodeGenerator.getInstance().getintermediateCode();
+        writeIntermediateFile(fileName, intermediateCode);
+    }
+}
