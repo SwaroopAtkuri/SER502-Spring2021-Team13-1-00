@@ -1,0 +1,196 @@
+package runtime;
+
+import compiler.IJARPLSymbol;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+public class IJARPLRuntime {
+
+    static HashMap<String,Integer> characters = new HashMap<String,Integer>();
+    static Stack<Integer> stack = new Stack<Integer>();
+    static Stack<Boolean> booleanList = new Stack<Boolean>();
+    static ArrayList<String> programList = new ArrayList<String>();
+    static Stack<Boolean> bool = new Stack<Boolean>();
+    static int iteratorIndex = 0;
+    static Stack<Integer> range = new Stack<Integer>();
+
+    public static void move(String label) {
+        boolean ifElse = label.contains(IJARPLSymbol.ELSE.trim())? true : false;
+        int id = 0;
+        if (ifElse) {
+            String[] temp = label.split("_");
+            id = Integer.parseInt(temp[1]);
+        }
+        for (int i = iteratorIndex; i < programList.size(); i++) {
+            String code = programList.get(i);
+            if (code.trim().equals(label.trim()) || (ifElse && code.trim().contains(IJARPLSymbol.END_IF_COND.trim()))) {
+                iteratorIndex = i;
+                if (code.trim().contains(IJARPLSymbol.END_IF_COND.trim())) {
+                }
+                break;
+            }
+        }
+    }
+
+    public static int range() {
+        int temp = range.pop();
+        range.push(temp);
+        return temp;
+    }
+
+    static public void runTimeExecution(){
+        String code = programList.get(iteratorIndex);
+        String[] split = code.split(" ");
+        int tempNest = 0;
+        if (code.contains(IJARPLSymbol.IF_COND.trim()) || code.contains(IJARPLSymbol.ELSE.trim())
+                || code.contains(IJARPLSymbol.END_IF_COND.trim()) || code.contains(IJARPLSymbol.FOR_LOOP.trim())
+                || code.contains(IJARPLSymbol.END_FOR_LOOP.trim())) {
+            split = code.split("_");
+            tempNest = Integer.parseInt(" ");
+        }
+        int flag = 0;
+        switch(split[0] + " ") {
+            case IJARPLSymbol.LOAD:
+                if (range.isEmpty()) {
+                } else {
+                    if (!characters.containsKey(range())) {
+                        characters.put(range() + " ", 0);
+                    }
+                }
+                break;
+            case IJARPLSymbol.ADD :
+                flag = stack.pop() + stack.pop();
+                stack.push(flag);
+                break;
+            case IJARPLSymbol.ASSIGN :
+                if (range.isEmpty()) {
+                    characters.put(" ", stack.pop());
+                } else {
+                    characters.put(range() + " ", stack.pop());
+                }
+                break;
+            case IJARPLSymbol.BOOL:
+                booleanList.push(Boolean.parseBoolean(" "));
+                break;
+            case IJARPLSymbol.DIV:
+                flag = stack.pop();
+                if (flag != 0) {
+                    flag = stack.pop()/flag;
+                    stack.push(flag);
+                }
+                break;
+            case IJARPLSymbol.ELSE:
+                move(IJARPLSymbol.END_IF_COND.trim());
+                break;
+            case IJARPLSymbol.BLOCK:
+                break;
+            case IJARPLSymbol.EQUAL:
+                if (stack.pop() == stack.pop()) {
+                    booleanList.push(true);
+                } else {
+                    booleanList.push(false);
+                }
+                break;
+            case IJARPLSymbol.GREATER_THAN:
+                flag = stack.pop();
+                if (stack.pop() > flag) {
+                    booleanList.push(true);
+                } else {
+                    booleanList.push(false);
+                }
+                break;
+            case IJARPLSymbol.IF_COND:
+                bool.push(false);
+                break;
+            case IJARPLSymbol.LESS_THAN:
+                flag = stack.pop();
+                if (stack.pop() < flag) {
+                    booleanList.push(true);
+                } else {
+                    booleanList.push(false);
+                }
+                break;
+            case IJARPLSymbol.FOR_LOOP:
+                bool.push(true);
+                break;
+            case IJARPLSymbol.MUL:
+                stack.push((stack.pop() * stack.pop()));
+                break;
+            case IJARPLSymbol.END_BLOCK:
+                break;
+            case IJARPLSymbol.NOT_EQUAL:
+                if (stack.pop() != stack.pop()) {
+                    booleanList.push(true);
+                } else {
+                    booleanList.push(false);
+                }
+                break;
+            case IJARPLSymbol.STATEMENT:
+                break;
+            case IJARPLSymbol.MOD:
+                flag = stack.pop();
+                flag = stack.pop() % flag;
+                stack.push(flag);
+                break;
+            case IJARPLSymbol.SPACE:
+                break;
+            case IJARPLSymbol.SUB:
+                flag = stack.pop();
+                flag = stack.pop() - flag;
+                stack.push(flag);
+                break;
+            case IJARPLSymbol.END_PROGRAM:
+                break;
+            case IJARPLSymbol.PRINT:
+                System.out.println(stack.pop());
+                break;
+            case IJARPLSymbol.EXPR:
+                break;
+            case IJARPLSymbol.END_FOR_LOOP:
+                if (bool.pop()) {
+                    if (!booleanList.pop()) {
+                        move(IJARPLSymbol.END_FOR_LOOP.trim());
+                    }
+                } else {
+                    if (!booleanList.pop()) {
+                        move(IJARPLSymbol.ELSE.trim());
+                    }
+                }
+                break;
+
+            case IJARPLSymbol.PROGRAM:
+                break;
+        }
+    }
+
+    public static void main(String[] args){
+        String fname = "";
+
+        if(fname.contains(".txt")){
+            System.out.println("The selected file is not a .txt file");
+        }
+
+        if (args.length > 0 ){
+            fname = args[0];
+        }else {
+            System.out.println("Filename should not be empty");
+            return;
+        }
+        try {
+            List<String> lines = Files.readAllLines(Path.of(fname));
+            for(String line: lines) {
+                System.out.println(line);
+                programList.add(line);
+            }
+        } catch (IOException ex) {
+            System.out.format("Entered file doesn't exist");
+        }
+
+        for( int linecount = 0 ; linecount < programList.size(); linecount++) {
+            runTimeExecution();
+        }
+    }
+}
